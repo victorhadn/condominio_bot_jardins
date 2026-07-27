@@ -1,6 +1,7 @@
 from datetime import datetime
 import json
 import os
+from urllib.parse import unquote
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, redirect, render_template, request, url_for
 import requests
@@ -8,13 +9,11 @@ import requests
 app = Flask(__name__)
 ARQUIVO_AVISOS = "avisos.json"
 
-# --- CONFIGURAÇÕES DA EVOLUTION API ---
-EVOLUTION_URL = "https://evolution-condominio.onrender.com"
-INSTANCE_NAME = "condominio_bot"
-API_KEY = "MinhaChaveSuperSecreta123"
-
-# ID do grupo obtido no WhatsApp
-GRUPO_ID = "20363411692097486@g.us"
+# --- CONFIGURAÇÕES PROTEGIDAS (PUXADAS DAS VARIÁVEIS DE AMBIENTE) ---
+EVOLUTION_URL = os.getenv("EVOLUTION_URL", "https://evolution-condominio.onrender.com")
+INSTANCE_NAME = os.getenv("INSTANCE_NAME", "condominio_bot")
+API_KEY = os.getenv("API_KEY", "SUA_CHAVE_AQUI")
+GRUPO_ID = os.getenv("GRUPO_ID", "20363411692097486@g.us")
 
 
 def carregar_avisos():
@@ -108,10 +107,11 @@ def adicionar():
   return redirect(url_for("index"))
 
 
-@app.route("/deletar/<id_aviso>")
+@app.route("/deletar/<path:id_aviso>")
 def deletar(id_aviso):
   avisos = carregar_avisos()
-  avisos = [a for a in avisos if a["id"] != id_aviso]
+  id_limpo = unquote(id_aviso).strip()
+  avisos = [a for a in avisos if str(a.get("id", "")).strip() != id_limpo]
   salvar_avisos(avisos)
   return redirect(url_for("index"))
 
