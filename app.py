@@ -11,10 +11,10 @@ ARQUIVO_AVISOS = "avisos.json"
 # --- CONFIGURAÇÕES DA EVOLUTION API ---
 EVOLUTION_URL = "https://evolution-condominio.onrender.com"
 INSTANCE_NAME = "condominio_bot"
-API_KEY = "MinhaChaveSuperSecreta123"  
+API_KEY = "MinhaChaveSuperSecreta123"
 
-# ID do grupo obtido no WhatsApp (formato @g.us para Evolution API v2)
-GRUPO_ID = "120363426637457947@g.us"
+# ID do grupo obtido no WhatsApp
+GRUPO_ID = "20363411692097486@g.us"
 
 
 def carregar_avisos():
@@ -32,13 +32,9 @@ def salvar_avisos(avisos):
     json.dump(avisos, f, ensure_ascii=False, indent=2)
 
 
-# --- LÓGICA DE DISPARO VIA EVOLUTION API ---
 def enviar_mensagem_whatsapp(texto):
-  # Endpoint oficial da Evolution API v2 para envio de mensagem de texto
   url = f"{EVOLUTION_URL}/message/sendText/{INSTANCE_NAME}"
-
   headers = {"Content-Type": "application/json", "apikey": API_KEY}
-
   payload = {"number": GRUPO_ID, "text": texto}
 
   try:
@@ -70,13 +66,11 @@ def verificar_e_disparar_avisos():
         enviar_mensagem_whatsapp(aviso["mensagem"])
 
 
-# Inicializa o Agendador em segundo plano (roda a cada 1 minuto)
 scheduler = BackgroundScheduler()
 scheduler.add_job(verificar_e_disparar_avisos, "interval", minutes=1)
 scheduler.start()
 
 
-# --- ROTAS DO PAINEL WEB ---
 @app.route("/")
 def index():
   avisos = carregar_avisos()
@@ -88,10 +82,17 @@ def adicionar():
   identificador = request.form.get("id")
   mensagem = request.form.get("mensagem")
   data_fim = request.form.get("data_fim")
-  horario1 = request.form.get("horario1")
-  horario2 = request.form.get("horario2")
 
-  horarios = [h for h in [horario1, horario2] if h]
+  campos_horarios = [
+      request.form.get("horario1"),
+      request.form.get("horario2"),
+      request.form.get("horario3"),
+      request.form.get("horario4"),
+      request.form.get("horario5"),
+      request.form.get("horario6"),
+  ]
+
+  horarios = [h for h in campos_horarios if h]
 
   novo_aviso = {
       "id": identificador,
@@ -116,6 +117,5 @@ def deletar(id_aviso):
 
 
 if __name__ == "__main__":
-  # Pega a porta automática do Render ou usa 5000 se rodar local
   port = int(os.environ.get("PORT", 5000))
   app.run(host="0.0.0.0", port=port, debug=False)
