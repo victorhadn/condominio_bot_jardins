@@ -11,7 +11,16 @@
         label { display: block; margin-top: 10px; font-weight: bold; }
         input, textarea { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; }
         textarea { height: 100px; }
-        button { background: #0284c7; color: white; border: none; padding: 10px 15px; margin-top: 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        
+        /* Layout em grade para os inputs de horário */
+        .horarios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        button { background: #0284c7; color: white; border: none; padding: 10px 15px; margin-top: 15px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; }
         button:hover { background: #0369a1; }
         .aviso-card { background: #fff; border-left: 4px solid #0284c7; padding: 15px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .btn-excluir { background: #dc2626; padding: 5px 10px; font-size: 12px; text-decoration: none; color: white; border-radius: 3px; display: inline-block; margin-top: 10px;}
@@ -20,12 +29,12 @@
 </head>
 <body>
     <div class="container">
-        <h1>🏢 Gestão de Avisos do Condomínio</h1>
-        <p>Cadastre os lembretes abaixo. O bot enviará automaticamente duas vezes ao dia para o grupo do WhatsApp até a data limite.</p>
+        <h1>🏢📢 Gestão de Avisos do Jardins de Eunice Residence Club 🏢📢</h1>
+        <p>Cadastre os lembretes abaixo. O bot enviará automaticamente para o grupo do WhatsApp nos horários programados até a data limite.</p>
 
         <form action="/adicionar" method="POST">
             <h2>Novo Aviso</h2>
-            <label>Identificador (ex: manutencao_elevador):</label>
+            <label>Identificador:</label>
             <input type="text" name="id" required>
 
             <label>Mensagem do Comunicado:</label>
@@ -34,11 +43,33 @@
             <label>Data Limite para Envio:</label>
             <input type="date" name="data_fim" required>
 
-            <label>Horário 1 de Disparo:</label>
-            <input type="time" name="horario1" required value="08:00">
-
-            <label>Horário 2 de Disparo (Opcional):</label>
-            <input type="time" name="horario2" value="13:30">
+            <label>Horários de Disparo:</label>
+            <div class="horarios-grid">
+                <div>
+                    <label style="font-weight: normal; font-size: 13px;">Horário 1 (Obrigatório):</label>
+                    <input type="time" name="horario1" required value="08:00">
+                </div>
+                <div>
+                    <label style="font-weight: normal; font-size: 13px;">Horário 2 (Opcional):</label>
+                    <input type="time" name="horario2" value="13:30">
+                </div>
+                <div>
+                    <label style="font-weight: normal; font-size: 13px;">Horário 3 (Opcional):</label>
+                    <input type="time" name="horario3">
+                </div>
+                <div>
+                    <label style="font-weight: normal; font-size: 13px;">Horário 4 (Opcional):</label>
+                    <input type="time" name="horario4">
+                </div>
+                <div>
+                    <label style="font-weight: normal; font-size: 13px;">Horário 5 (Opcional):</label>
+                    <input type="time" name="horario5">
+                </div>
+                <div>
+                    <label style="font-weight: normal; font-size: 13px;">Horário 6 (Opcional):</label>
+                    <input type="time" name="horario6">
+                </div>
+            </div>
 
             <button type="submit">Salvar e Programar Aviso</button>
         </form>
