@@ -2,6 +2,7 @@ from datetime import datetime
 import json
 import os
 from urllib.parse import unquote
+import zoneinfo  # Biblioteca nativa do Python 3.9+
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, redirect, render_template, request, url_for
 import requests
@@ -9,10 +10,12 @@ import requests
 app = Flask(__name__)
 ARQUIVO_AVISOS = "avisos.json"
 
-# --- CONFIGURAÇÕES PROTEGIDAS (PUXADAS DAS VARIÁVEIS DE AMBIENTE) ---
-EVOLUTION_URL = os.getenv("EVOLUTION_URL", "https://evolution-condominio.onrender.com")
+# Configurações da Evolution API
+EVOLUTION_URL = os.getenv(
+    "EVOLUTION_URL", "https://evolution-condominio.onrender.com"
+)
 INSTANCE_NAME = os.getenv("INSTANCE_NAME", "condominio_bot")
-API_KEY = os.getenv("API_KEY", "SUA_CHAVE_AQUI")
+API_KEY = os.getenv("API_KEY", "MinhaChaveSuperSecreta123")
 GRUPO_ID = os.getenv("GRUPO_ID", "20363411692097486@g.us")
 
 
@@ -38,7 +41,6 @@ def enviar_mensagem_whatsapp(texto):
 
   try:
     response = requests.post(url, json=payload, headers=headers)
-
     if response.status_code in [200, 201]:
       print(
           f"[{datetime.now().strftime('%H:%M')}] 🚀 Mensagem enviada via"
@@ -48,15 +50,19 @@ def enviar_mensagem_whatsapp(texto):
       print(
           f"❌ Erro na Evolution API ({response.status_code}): {response.text}"
       )
-
   except Exception as e:
     print(f"❌ Erro ao enviar mensagem no WhatsApp: {e}")
 
 
 def verificar_e_disparar_avisos():
   avisos = carregar_avisos()
-  hoje = datetime.now().date()
-  hora_atual = datetime.now().strftime("%H:%M")
+
+  # Força a busca do horário oficial de Brasília/São Paulo
+  fuso_br = zoneinfo.ZoneInfo("America/Sao_Paulo")
+  agora_br = datetime.now(fuso_br)
+
+  hoje = agora_br.date()
+  hora_atual = agora_br.strftime("%H:%M")
 
   for aviso in avisos:
     data_fim = datetime.strptime(aviso["data_fim"], "%Y-%m-%d").date()
@@ -65,7 +71,9 @@ def verificar_e_disparar_avisos():
         enviar_mensagem_whatsapp(aviso["mensagem"])
 
 
-scheduler = BackgroundScheduler()
+# Inicializa o agendador no fuso horário do Brasil
+fuso_br = zoneinfo.ZoneInfo("America/Sao_Paulo")
+scheduler = BackgroundScheduler(timezone=fuso_br)
 scheduler.add_job(verificar_e_disparar_avisos, "interval", minutes=1)
 scheduler.start()
 
