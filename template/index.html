@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciador de Avisos - Condomínio</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1, h2 { color: #0284c7; }
+        form { background: #f8fafc; padding: 20px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; }
+        textarea { height: 100px; }
+        button { background: #0284c7; color: white; border: none; padding: 10px 15px; margin-top: 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #0369a1; }
+        .aviso-card { background: #fff; border-left: 4px solid #0284c7; padding: 15px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .btn-excluir { background: #dc2626; padding: 5px 10px; font-size: 12px; text-decoration: none; color: white; border-radius: 3px; display: inline-block; margin-top: 10px;}
+        .btn-excluir:hover { background: #b91c1c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏢 Gestão de Avisos do Condomínio</h1>
+        <p>Cadastre os lembretes abaixo. O bot enviará automaticamente duas vezes ao dia para o grupo do WhatsApp até a data limite.</p>
+
+        <form action="/adicionar" method="POST">
+            <h2>Novo Aviso</h2>
+            <label>Identificador (ex: manutencao_elevador):</label>
+            <input type="text" name="id" required>
+
+            <label>Mensagem do Comunicado:</label>
+            <textarea name="mensagem" required placeholder="Ex: 📢 Lembrete: Manutenção hoje..."></textarea>
+
+            <label>Data Limite para Envio:</label>
+            <input type="date" name="data_fim" required>
+
+            <label>Horário 1 de Disparo:</label>
+            <input type="time" name="horario1" required value="08:00">
+
+            <label>Horário 2 de Disparo (Opcional):</label>
+            <input type="time" name="horario2" value="13:30">
+
+            <button type="submit">Salvar e Programar Aviso</button>
+        </form>
+
+        <h2>📋 Avisos Ativos</h2>
+        {% if not avisos %}
+            <p>Nenhum aviso cadastrado no momento.</p>
+        {% endif %}
+        {% for a in avisos %}
+            <div class="aviso-card">
+                <strong>ID:</strong> {{ a.id }} <br>
+                <strong>Até:</strong> {{ a.data_fim }} | <strong>Horários:</strong> {{ a.horarios | join(', ') }} <br>
+                <strong>Mensagem:</strong><br>
+                <pre style="white-space: pre-wrap; font-family: inherit;">{{ a.mensagem }}</pre>
+                <a class="btn-excluir" href="/deletar/{{ a.id }}">Excluir Aviso</a>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
