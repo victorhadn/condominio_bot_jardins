@@ -2,91 +2,363 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Gerenciador de Avisos - Condomínio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Avisos - Jardins de Eunice</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        h1, h2 { color: #0284c7; }
-        form { background: #f8fafc; padding: 20px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
-        label { display: block; margin-top: 10px; font-weight: bold; }
-        input, textarea { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; }
-        textarea { height: 100px; }
-        
-        /* Layout em grade para os inputs de horário */
-        .horarios-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-            margin-top: 10px;
+        :root {
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --bg-body: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
         }
 
-        button { background: #0284c7; color: white; border: none; padding: 10px 15px; margin-top: 15px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; }
-        button:hover { background: #0369a1; }
-        .aviso-card { background: #fff; border-left: 4px solid #0284c7; padding: 15px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .btn-excluir { background: #dc2626; padding: 5px 10px; font-size: 12px; text-decoration: none; color: white; border-radius: 3px; display: inline-block; margin-top: 10px;}
-        .btn-excluir:hover { background: #b91c1c; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding: 40px 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: auto;
+        }
+
+        /* Cabeçalho com Logo */
+        .header {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .logo {
+            max-width: 220px;
+            height: auto;
+            margin-bottom: 16px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Formulário */
+        .form-card {
+            background: var(--card-bg);
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            margin-bottom: 32px;
+        }
+
+        .form-card h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="time"],
+        textarea {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: #f8fafc;
+            color: var(--text-main);
+            transition: all 0.2s ease;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        textarea {
+            height: 110px;
+            resize: vertical;
+        }
+
+        /* Grade de Horários */
+        .horarios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .horario-item label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .horario-item input {
+            background: #ffffff;
+        }
+
+        /* Botão principal */
+        .btn-submit {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 24px;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-submit:active {
+            transform: scale(0.99);
+        }
+
+        /* Seção de Avisos */
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .empty-state {
+            background: var(--card-bg);
+            padding: 32px;
+            text-align: center;
+            border-radius: 12px;
+            color: var(--text-muted);
+            border: 1px dashed var(--border-color);
+        }
+
+        .aviso-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: border-color 0.2s ease;
+        }
+
+        .aviso-card:hover {
+            border-color: #cbd5e1;
+        }
+
+        .aviso-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .aviso-id {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 0.95rem;
+        }
+
+        .badge-date {
+            background: #e0f2fe;
+            color: #0369a1;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .aviso-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .aviso-mensagem {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.92rem;
+            white-space: pre-wrap;
+            color: var(--text-main);
+            border-left: 3px solid var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .btn-excluir {
+            background: var(--danger);
+            color: white;
+            padding: 6px 14px;
+            font-size: 0.825rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            transition: background 0.2s ease;
+        }
+
+        .btn-excluir:hover {
+            background: var(--danger-hover);
+        }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h1>🏢📢 Gestão de Avisos do Jardins de Eunice Residence Club 🏢📢</h1>
-        <p>Cadastre os lembretes abaixo. O bot enviará automaticamente para o grupo do WhatsApp nos horários programados até a data limite.</p>
+        
+        <!-- Cabeçalho Institucional -->
+        <header class="header">
+            <img src="https://www.construtoradaterra.com.br/assets/site/uploads/tmp/logo-LOIAmR8WIFk7aq61546872154.jpg" alt="Logo Construtora Da Terra" class="logo">
+            <h1>🏢 Jardins de Eunice Residence Club</h1>
+            <p>Painel Integrado de Gestão de Comunicados e Envio Automático para WhatsApp</p>
+        </header>
 
-        <form action="/adicionar" method="POST">
-            <h2>Novo Aviso</h2>
-            <label>Identificador:</label>
-            <input type="text" name="id" required>
+        <!-- Formulário de Cadastro -->
+        <section class="form-card">
+            <h2>➕ Programar Novo Aviso</h2>
+            
+            <form action="/adicionar" method="POST">
+                <div class="form-group">
+                    <label for="id">Identificador do Aviso</label>
+                    <input type="text" id="id" name="id" placeholder="Ex: manutencao_elevador_bloco_a" required>
+                </div>
 
-            <label>Mensagem do Comunicado:</label>
-            <textarea name="mensagem" required placeholder="Ex: 📢 Lembrete: Manutenção hoje..."></textarea>
+                <div class="form-group">
+                    <label for="mensagem">Mensagem do Comunicado</label>
+                    <textarea id="mensagem" name="mensagem" required placeholder="Digite aqui o texto que será enviado aos moradores..."></textarea>
+                </div>
 
-            <label>Data Limite para Envio:</label>
-            <input type="date" name="data_fim" required>
+                <div class="form-group">
+                    <label for="data_fim">Data Limite para Envio</label>
+                    <input type="date" id="data_fim" name="data_fim" required>
+                </div>
 
-            <label>Horários de Disparo:</label>
-            <div class="horarios-grid">
-                <div>
-                    <label style="font-weight: normal; font-size: 13px;">Horário 1 (Obrigatório):</label>
-                    <input type="time" name="horario1" required value="08:00">
+                <div class="form-group">
+                    <label>Horários Diários de Disparo</label>
+                    <div class="horarios-grid">
+                        <div class="horario-item">
+                            <label>Horário 1 (Obrigatório)</label>
+                            <input type="time" name="horario1" required value="08:00">
+                        </div>
+                        <div class="horario-item">
+                            <label>Horário 2 (Opcional)</label>
+                            <input type="time" name="horario2" value="13:30">
+                        </div>
+                        <div class="horario-item">
+                            <label>Horário 3 (Opcional)</label>
+                            <input type="time" name="horario3">
+                        </div>
+                        <div class="horario-item">
+                            <label>Horário 4 (Opcional)</label>
+                            <input type="time" name="horario4">
+                        </div>
+                        <div class="horario-item">
+                            <label>Horário 5 (Opcional)</label>
+                            <input type="time" name="horario5">
+                        </div>
+                        <div class="horario-item">
+                            <label>Horário 6 (Opcional)</label>
+                            <input type="time" name="horario6">
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label style="font-weight: normal; font-size: 13px;">Horário 2 (Opcional):</label>
-                    <input type="time" name="horario2" value="13:30">
-                </div>
-                <div>
-                    <label style="font-weight: normal; font-size: 13px;">Horário 3 (Opcional):</label>
-                    <input type="time" name="horario3">
-                </div>
-                <div>
-                    <label style="font-weight: normal; font-size: 13px;">Horário 4 (Opcional):</label>
-                    <input type="time" name="horario4">
-                </div>
-                <div>
-                    <label style="font-weight: normal; font-size: 13px;">Horário 5 (Opcional):</label>
-                    <input type="time" name="horario5">
-                </div>
-                <div>
-                    <label style="font-weight: normal; font-size: 13px;">Horário 6 (Opcional):</label>
-                    <input type="time" name="horario6">
-                </div>
-            </div>
 
-            <button type="submit">Salvar e Programar Aviso</button>
-        </form>
+                <button type="submit" class="btn-submit">Salvar e Ativar Programação</button>
+            </form>
+        </section>
 
-        <h2>📋 Avisos Ativos</h2>
-        {% if not avisos %}
-            <p>Nenhum aviso cadastrado no momento.</p>
-        {% endif %}
-        {% for a in avisos %}
-            <div class="aviso-card">
-                <strong>ID:</strong> {{ a.id }} <br>
-                <strong>Até:</strong> {{ a.data_fim }} | <strong>Horários:</strong> {{ a.horarios | join(', ') }} <br>
-                <strong>Mensagem:</strong><br>
-                <pre style="white-space: pre-wrap; font-family: inherit;">{{ a.mensagem }}</pre>
-                <a class="btn-excluir" href="/deletar/{{ a.id }}">Excluir Aviso</a>
-            </div>
-        {% endfor %}
+        <!-- Lista de Avisos -->
+        <section>
+            <h2 class="section-title">📋 Comunicados Ativos no Momento</h2>
+            
+            {% if not avisos %}
+                <div class="empty-state">
+                    <p>Nenhum comunicado cadastrado na fila de disparos.</p>
+                </div>
+            {% endif %}
+
+            {% for a in avisos %}
+                <div class="aviso-card">
+                    <div class="aviso-header">
+                        <span class="aviso-id">ID: {{ a.id }}</span>
+                        <span class="badge-date">Ativo até: {{ a.data_fim }}</span>
+                    </div>
+                    
+                    <div class="aviso-meta">
+                        ⏰ <strong>Horários programados:</strong> {{ a.horarios | join(', ') }}
+                    </div>
+
+                    <div class="aviso-mensagem">{{ a.mensagem }}</div>
+
+                    <a class="btn-excluir" href="/deletar/{{ a.id }}" onclick="return confirm('Deseja realmente remover este comunicado?')">Excluir Comunicado</a>
+                </div>
+            {% endfor %}
+        </section>
+
     </div>
+
 </body>
 </html>
