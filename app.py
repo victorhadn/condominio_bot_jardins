@@ -16,7 +16,7 @@ EVOLUTION_URL = os.getenv(
 )
 INSTANCE_NAME = os.getenv("INSTANCE_NAME", "condominio_bot")
 API_KEY = os.getenv("API_KEY", "MinhaChaveSuperSecreta123")
-GRUPO_ID = os.getenv("GRUPO_ID", "558398322454-1547988466@g.us")
+GRUPO_ID = os.getenv("GRUPO_ID", "120363426637457947@g.us")
 
 
 def carregar_avisos():
