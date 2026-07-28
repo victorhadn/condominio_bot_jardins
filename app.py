@@ -147,18 +147,6 @@ def adicionar():
 
   return redirect(url_for("index"))
 
-
-@app.route("/testar-envio")
-def testar_envio():
-  sucesso = enviar_mensagem_whatsapp(
-      "🧪 TESTE DE DISPARO MANUAL VIA PAINEL DO CONDOMÍNIO!"
-  )
-  if sucesso:
-    return "<h1>🚀 Mensagem enviada com sucesso! Verifique o WhatsApp.</h1>"
-  else:
-    return "<h1>❌ Erro ao enviar mensagem. Abra a aba 'Logs' no Render.</h1>"
-
-
 @app.route("/deletar/<path:id_aviso>")
 def deletar(id_aviso):
   avisos = carregar_avisos()
