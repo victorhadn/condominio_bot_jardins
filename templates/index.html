@@ -269,7 +269,7 @@
         <header class="header">
             <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Logo Construtora Da Terra" class="logo" onerror="this.src='https://www.construtoradaterra.com.br/assets/site/uploads/tmp/logo-LOIAmR8WIFk7aq61546872154.jpg'">
             <h1>Jardins de Eunice Residence Club</h1>
-            <p>Painel Integrado de Gestão de Comunicados para grupo do WhatsApp do Condomínio</p>
+            <p>Painel Integrado de gestão de comunicados para grupo do WhatsApp do Condomínio</p>
         </header>
 
         <!-- Formulário de Cadastro -->
@@ -284,25 +284,25 @@
 
                 <div class="form-group">
                     <label for="mensagem">Mensagem do Comunicado</label>
-                    <textarea id="mensagem" name="mensagem" required placeholder="Digite aqui o texto que será enviado aos moradores..."></textarea>
+                    <textarea id="mensagem" name="mensagem" required placeholder="Digite aqui o texto que será enviado aos moradores."></textarea>
                 </div>
 
                 <!-- Período de Disparo (Início e Fim) -->
                 <div class="form-group">
                     <div class="datas-grid">
                         <div>
-                            <label for="data_inicio">Data de Início do Envio</label>
+                            <label for="data_inicio">Data Inicial do Envio</label>
                             <input type="date" id="data_inicio" name="data_inicio" required>
                         </div>
                         <div>
-                            <label for="data_fim">Data Limite para Envio</label>
+                            <label for="data_fim">Data Final do Envio</label>
                             <input type="date" id="data_fim" name="data_fim" required>
                         </div>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Horários Diários de Disparo</label>
+                    <label>Horários Diários de disparo dos alertas</label>
                     <div class="horarios-grid">
                         <div class="horario-item">
                             <label>Horário 1 (Obrigatório)</label>
@@ -331,7 +331,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn-submit">Salvar e Ativar Programação</button>
+                <button type="submit" class="btn-submit">Salvar Programação</button>
             </form>
         </section>
 
