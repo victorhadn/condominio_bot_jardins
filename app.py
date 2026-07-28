@@ -10,7 +10,7 @@ import requests
 app = Flask(__name__)
 ARQUIVO_AVISOS = "avisos.json"
 
-# Configurações da Evolution API
+# Configurações da Evolution API 
 EVOLUTION_URL = os.getenv(
     "EVOLUTION_URL", "https://evolution-condominio.onrender.com"
 )
@@ -37,23 +37,27 @@ def salvar_avisos(avisos):
 def enviar_mensagem_whatsapp(texto):
   url = f"{EVOLUTION_URL}/message/sendText/{INSTANCE_NAME}"
   headers = {"Content-Type": "application/json", "apikey": API_KEY}
-
-  # Envio direto para o ID do grupo (funciona para membros/admins conforme permissão do grupo)
   payload = {"number": GRUPO_ID, "text": texto}
+
+  print(
+      f"[{datetime.now().strftime('%H:%M:%S')}] 🔄 Tentando enviar mensagem"
+      f" para {GRUPO_ID}..."
+  )
 
   try:
     response = requests.post(url, json=payload, headers=headers)
+    print(f"📡 Status HTTP da Evolution: {response.status_code}")
+    print(f"📩 Resposta da Evolution: {response.text}")
+
     if response.status_code in [200, 201]:
-      print(
-          f"[{datetime.now().strftime('%H:%M')}] 🚀 Mensagem enviada via"
-          " Evolution API!"
-      )
+      print(f"🚀 Mensagem enviada com sucesso!")
+      return True
     else:
-      print(
-          f"❌ Erro na Evolution API ({response.status_code}): {response.text}"
-      )
+      print(f"❌ Erro na Evolution API ({response.status_code})")
+      return False
   except Exception as e:
-    print(f"❌ Erro ao enviar mensagem no WhatsApp: {e}")
+    print(f"❌ Exceção ao tentar conexao com WhatsApp: {e}")
+    return False
 
 
 def verificar_e_disparar_avisos():
@@ -65,21 +69,28 @@ def verificar_e_disparar_avisos():
   hoje = agora_br.date()
   hora_atual = agora_br.strftime("%H:%M")
 
+  print(f"⏰ [LOOP DE CHECAGEM] Horario atual SP: {hora_atual}")
+
   for aviso in avisos:
     try:
       data_fim = datetime.strptime(aviso["data_fim"], "%Y-%m-%d").date()
-      # Verifica se o aviso ainda está dentro do prazo de validade
       if hoje <= data_fim:
         if hora_atual in aviso["horarios"]:
+          print(f"🎯 Aviso encontrado para disparo agora ({hora_atual})!")
           enviar_mensagem_whatsapp(aviso["mensagem"])
     except Exception as err:
       print(f"Erro ao processar aviso {aviso.get('id')}: {err}")
 
-
-# Inicializa o agendador no fuso horário de Brasília
 fuso_br = zoneinfo.ZoneInfo("America/Sao_Paulo")
 scheduler = BackgroundScheduler(timezone=fuso_br)
-scheduler.add_job(verificar_e_disparar_avisos, "interval", minutes=1)
+
+scheduler.add_job(
+    verificar_e_disparar_avisos,
+    "interval",
+    minutes=1,
+    timezone=fuso_br,
+    misfire_grace_time=30,
+)
 scheduler.start()
 
 
@@ -114,8 +125,6 @@ def adicionar():
   }
 
   avisos = carregar_avisos()
-
-  # Remove qualquer aviso pré-existente com o mesmo ID antes de adicionar o novo
   id_novo_limpo = str(identificador).strip()
   avisos = [a for a in avisos if str(a.get("id", "")).strip() != id_novo_limpo]
 
@@ -124,17 +133,30 @@ def adicionar():
 
   return redirect(url_for("index"))
 
+@app.route("/testar-envio")
+def testar_envio():
+  sucesso = enviar_mensagem_whatsapp(
+      "🧪 TESTE DE DISPARO MANUALLY VIA PAINEL DO CONDOMÍNIO!"
+  )
+  if sucesso:
+    return (
+        "<h1>🚀 Mensagem enviada com sucesso! Verifique o WhatsApp e os Logs do"
+        " Render.</h1>"
+    )
+  else:
+    return (
+        "<h1>❌ Erro ao enviar mensagem. Abra a aba 'Logs' no Render para ver"
+        " os detalhes.</h1>"
+    )
+
 
 @app.route("/deletar/<path:id_aviso>")
 def deletar(id_aviso):
   avisos = carregar_avisos()
   id_limpo = unquote(id_aviso).strip()
-
-  # Filtra e remove o aviso correspondente
   avisos_filtrados = [
       a for a in avisos if str(a.get("id", "")).strip() != id_limpo
   ]
-
   salvar_avisos(avisos_filtrados)
   return redirect(url_for("index"))
 
