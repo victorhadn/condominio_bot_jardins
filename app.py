@@ -2,7 +2,7 @@ from datetime import datetime
 import json
 import os
 from urllib.parse import unquote
-import zoneinfo  # Biblioteca nativa do Python 3.9+
+import zoneinfo
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, redirect, render_template, request, url_for
 import requests
@@ -37,6 +37,8 @@ def salvar_avisos(avisos):
 def enviar_mensagem_whatsapp(texto):
   url = f"{EVOLUTION_URL}/message/sendText/{INSTANCE_NAME}"
   headers = {"Content-Type": "application/json", "apikey": API_KEY}
+
+  # Envio direto para o ID do grupo (funciona para membros/admins conforme permissão do grupo)
   payload = {"number": GRUPO_ID, "text": texto}
 
   try:
@@ -57,7 +59,6 @@ def enviar_mensagem_whatsapp(texto):
 def verificar_e_disparar_avisos():
   avisos = carregar_avisos()
 
-  # Força a busca do horário oficial de Brasília/São Paulo
   fuso_br = zoneinfo.ZoneInfo("America/Sao_Paulo")
   agora_br = datetime.now(fuso_br)
 
@@ -65,13 +66,17 @@ def verificar_e_disparar_avisos():
   hora_atual = agora_br.strftime("%H:%M")
 
   for aviso in avisos:
-    data_fim = datetime.strptime(aviso["data_fim"], "%Y-%m-%d").date()
-    if hoje <= data_fim:
-      if hora_atual in aviso["horarios"]:
-        enviar_mensagem_whatsapp(aviso["mensagem"])
+    try:
+      data_fim = datetime.strptime(aviso["data_fim"], "%Y-%m-%d").date()
+      # Verifica se o aviso ainda está dentro do prazo de validade
+      if hoje <= data_fim:
+        if hora_atual in aviso["horarios"]:
+          enviar_mensagem_whatsapp(aviso["mensagem"])
+    except Exception as err:
+      print(f"Erro ao processar aviso {aviso.get('id')}: {err}")
 
 
-# Inicializa o agendador no fuso horário do Brasil
+# Inicializa o agendador no fuso horário de Brasília
 fuso_br = zoneinfo.ZoneInfo("America/Sao_Paulo")
 scheduler = BackgroundScheduler(timezone=fuso_br)
 scheduler.add_job(verificar_e_disparar_avisos, "interval", minutes=1)
@@ -109,6 +114,11 @@ def adicionar():
   }
 
   avisos = carregar_avisos()
+
+  # Remove qualquer aviso pré-existente com o mesmo ID antes de adicionar o novo
+  id_novo_limpo = str(identificador).strip()
+  avisos = [a for a in avisos if str(a.get("id", "")).strip() != id_novo_limpo]
+
   avisos.append(novo_aviso)
   salvar_avisos(avisos)
 
@@ -119,8 +129,13 @@ def adicionar():
 def deletar(id_aviso):
   avisos = carregar_avisos()
   id_limpo = unquote(id_aviso).strip()
-  avisos = [a for a in avisos if str(a.get("id", "")).strip() != id_limpo]
-  salvar_avisos(avisos)
+
+  # Filtra e remove o aviso correspondente
+  avisos_filtrados = [
+      a for a in avisos if str(a.get("id", "")).strip() != id_limpo
+  ]
+
+  salvar_avisos(avisos_filtrados)
   return redirect(url_for("index"))
 
 
